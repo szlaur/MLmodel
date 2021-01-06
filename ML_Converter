@@ -1,0 +1,27 @@
+import coremltools as ct
+from tensorflow.keras.models import load_model
+
+
+model_F = load_model('/Users/your_name/Downloads/model_name.h5')
+
+image_input = ct.ImageType(shape=(1, 224, 224, 3,),
+                           bias=[-1,-1,-1], scale=1/255.)
+
+output_labels = ['No Finding', 'Enlarged Cardiomediastinum', 'Cardiomegaly', 'Lung Opacity', 'Lung Lesion', 'Edema', 'Consolidation', 'Pneumonia', 'Atelectasis', 'Pneumothorax', 'Pleural Effusion', 'Pleural Other', 'Fracture', 'Support Devices']
+classifier_config = ct.ClassifierConfig(output_labels)
+
+
+core_ml = ct.convert(model_F,
+    inputs=[image_input],
+	image_scale=1/255.0,
+	classifier_config=classifier_config)
+
+
+core_ml.author = 'Your name'
+core_ml.short_description = 'Image recognition using DenseNet121'
+core_ml.input_description['input_1'] = 'Takes as input an image'
+core_ml.output_description['Identity'] = 'Prediction'
+
+
+
+core_ml.save('model_name.mlmodel')
